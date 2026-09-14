@@ -1,4 +1,4 @@
-name: Publish Hausleitner ERP
+name: Publish Takt
 
 on:
   push:
@@ -10,22 +10,21 @@ permissions:
   pages: write
   id-token: write
 
-environment:
-  name: github-pages
-  url: ${{ steps.deployment.outputs.page_url }}
-
 jobs:
   publish:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Rebuild static site
+      - name: Build static site
         run: |
           mkdir -p _site
-          base64 -d app/index.html.gz.b64 | gunzip > _site/index.html
+          cp index.html _site/index.html
           touch _site/.nojekyll
           test -s _site/index.html
-          grep -q 'Hausleitner ERP' _site/index.html
+          grep -q 'Takt' _site/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -42,14 +41,16 @@ jobs:
       CLOUDFLARE_PROJECT_NAME: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
     steps:
       - uses: actions/checkout@v4
-      - name: Rebuild static site
+      - name: Build static site
         run: |
           mkdir -p _site
-          base64 -d app/index.html.gz.b64 | gunzip > _site/index.html
+          cp index.html _site/index.html
           touch _site/.nojekyll
-      - name: Cloudflare Pages deploy
+      - name: Deploy Cloudflare Pages
         if: ${{ env.CLOUDFLARE_API_TOKEN != '' && env.CLOUDFLARE_ACCOUNT_ID != '' && env.CLOUDFLARE_PROJECT_NAME != '' }}
         run: npx --yes wrangler@latest pages deploy _site --project-name="$CLOUDFLARE_PROJECT_NAME" --branch=main
       - name: Cloudflare configuration missing
         if: ${{ env.CLOUDFLARE_API_TOKEN == '' || env.CLOUDFLARE_ACCOUNT_ID == '' || env.CLOUDFLARE_PROJECT_NAME == '' }}
-        run: echo 'Cloudflare deploy skipped because repository secret/variable binding is not present.'
+        run: |
+          echo 'Cloudflare deploy skipped: repository secret/variable binding missing.'
+          exit 1
