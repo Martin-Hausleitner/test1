@@ -1,5 +1,3 @@
-# Hausleitner ERP Demo
+# Takt + interner Helpdesk
 
-Static deployment source for the Hausleitner ERP / Leistungsnachweis demo.
-
-The production HTML is rebuilt losslessly from `app/index.html.gz.b64` by `.github/workflows/pages.yml`.
+Der Root-Stand bleibt Takt. Der interne Helpdesk wird zusätzlich unter `/helpdesk/` aus demselben Pages-Artefakt veröffentlicht.
